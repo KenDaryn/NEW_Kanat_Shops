@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "leafy-sight-398211",
+  "private_key_id": "5fff26e13dc1dbf22573d50acb347afdafcf20b5",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDB4pvt9It4f6S8\nDlkiouN0BR4Y1uavhjfv7aq8GZXWnyh6g2yWLqZB+1KMqp+C+N8lDnQFT0wejAo6\nxbOwMAiXIkFLpO9nM3tKbzWifMyDw3pyugAEmYJu8ROvVR+7NDfrqZbhgpFQ66Ox\nqT6Qgln6cKm0a8UXwzwgHqBrbykJdMLKc3IDkAAXmoPko5JzEOOt55Nk4ZSu8nbY\nEweWE0OyAGYrS8yuifFKkYReTgrrlsb50Q5oG74KaQ7hBMbGoJitYGHCX56jegvZ\nGuIZTwWRF/FrMchJsYy/CHvp63XCnOANc8FB6USY+kKtVLnoABV0DtH/WJgc55yj\n/oV0GPV/AgMBAAECggEADLe08eQLWflIo8U7kSTaHC9RwBNbyMINdtsO5FoeFMvj\nBDymqY5s/WfJpf+mVhlfZoQO/C76MTuPJQSSB5aLzOeqtmMe1cgjG2Jo3dWnaWUv\n6cj/KbR5p8lMbA3LXQsAOAcRv8BB9x4Q++nvRQ9bBsbPeudh/QlwLv/5sDjEZyHf\nGqRySlOnvp0+za9Zg6CWKZh/fV/Uz2o00cqk56Y5OivqiJUeC6T0MHyyrNZimna+\ne9fNpXITMUjM7Uo2UPYgx6vwjOjUJeTS7wCEVV3H4phGFnfNV3HbVnzK5VkJCrqn\n0xNvYeheefjkgrpQxsg0nIDpkzF/DZYd9gNvMoiUAQKBgQDjyr/D8rEc98h+gLf6\n8WzNwnP5uKa3unxG/RaxYo9DsOImHtz7IzyqrH++QP1M8xvFGiyhgzvcpr2KWOxd\nkK3Eda0CMoTRMdJX8icpbQ1lacL9UJKBgHW+M2Mnnr8QwBDDhmXxfMvQ7B/7zT32\nDQDfQuPNbmI4cZpaJejnuxsafwKBgQDZ5PplOV5xONIadrq8XsL4OnkJx7Yx98id\nt1WZQze4zgzXzcICpAQJkyFtH+V2rDK6ETIkBh7xdXDJju98oEf0k/BXPuC38EZx\nDE/Hqbl84HTC0phhP3qroLgi+gVOOkgeSE6TiwHwpD5LbIKC5xxbSUFVQ5/j53+M\nVB/uBhalAQKBgBAjVhCoyfl2aILl1aL2pbGyHAtOFKmhkZpp5citZd7y0iLHPvqf\n1XV2ARrWeduQwZ/mKdFLfds1COqbQCuky1rGx3oHYDd94xwN8M5ThoZvxruxkJ+S\nHUVbWKP+8CRcpxNjGyfPopTrlZx+PuyGoVAv6fms31KGYdwPIYABVns7AoGBANbE\nDtm+1gubCdvzstMARAQO/kZZhodxx1dM4R4TVtTco2QB9nxL1X7qekPo8G8sA0PK\ntzUyo0UzkFvaesrH4KR9PKOB4lTqi0PZ8rjF3YHsaqmskW0o+Gw6GcS/0oLshzDx\n7CEZHmxmNtB4v5ru2NBRQAgeg3ZLMzjJoj8l2SQBAoGBAI0bNCpMyyIVNvGYmpIy\nt0TXZqHHvEAWIzmKElHZHu/AqkjPyEoXHJIrNSLVBJFTei0k/tjs066hggWsHU4O\nkLM8iJOXC/WacCaMxvqNUtavcsMLdJODrB65GXcpcIXDFttO+s/373aANMY0GICd\nYnLR4qKY7aCfzHTrJkmjxaHb\n-----END PRIVATE KEY-----\n",
+  "client_email": "store-shops@leafy-sight-398211.iam.gserviceaccount.com",
+  "client_id": "115788256660238880447",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/store-shops%40leafy-sight-398211.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

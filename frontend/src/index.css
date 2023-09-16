@@ -1,0 +1,15 @@
+* {
+  text-decoration: none;
+  margin: 0;
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+header {
+  margin-bottom: 80px;
+}
+a {
+  color: aliceblue;
+}
