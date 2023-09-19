@@ -3,7 +3,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
-// eslint-disable-next-line import/order
 import store from './Store/store';
 import { Provider } from 'react-redux';
 import { createTheme } from '@mui/material';
