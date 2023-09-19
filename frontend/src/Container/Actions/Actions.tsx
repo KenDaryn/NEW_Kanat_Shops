@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Grid,
   Typography,
@@ -33,6 +33,9 @@ import { useNavigate } from 'react-router'
 
 const Actions = () => {
   const { data: transactions, refetch } = useGetActionsQuery()
+  useEffect(() => {
+    refetch()
+  }, [refetch])
   const [sourceNameFilter, setSourceNameFilter] = useState<string>('')
   const [loginFilter, setLoginFilter] = useState<string>('')
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)

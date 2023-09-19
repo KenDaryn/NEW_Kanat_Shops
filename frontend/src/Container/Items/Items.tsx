@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/await-thenable */
 import AddItem from './AddItems'
 import {
   useGetAllItemsQuery,
