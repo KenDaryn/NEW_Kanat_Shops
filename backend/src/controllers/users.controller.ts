@@ -47,6 +47,9 @@ controller.post("/login", async (req: Request, res: Response) => {
       "SELECT password from users where login = $1",
       [username]
     );
+    console.log(passwordUser +' Пароль с базы');
+    console.log('Пароль который быд получен ' +  password);
+    
     if (passwordUser.rows[0].password !== password) {
       return res.status(400).send({ message: "Wrong password" });
     }
