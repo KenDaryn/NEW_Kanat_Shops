@@ -12,7 +12,7 @@ import { Pool } from 'pg';
 require('dotenv').config()
 
 const pool = new Pool({
-  connectionString: "postgres://default:XRzOHUkGZt25@ep-sparkling-cell-92534195.us-east-1.postgres.vercel-storage.com:5432/verceldb?sslmode=require",
+  connectionString: "postgres://default:XRzOHUkGZt25@ep-sparkling-cell-92534195-pooler.us-east-1.postgres.vercel-storage.com:5432/verceldb?sslmode=require",
 })
 
 
