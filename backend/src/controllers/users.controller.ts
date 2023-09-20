@@ -51,7 +51,8 @@ controller.post("/login", async (req: Request, res: Response) => {
     console.log('Пароль который быд получен ' +  password);
     
     if (passwordUser.rows[0].password !== password) {
-      return res.status(400).send({ message: "Wrong password" });
+      // return res.status(400).send({ message: "Wrong password" });
+      return res.status(400).send({ message: passwordUser.rows[0] });
     }
     const token = nanoid();
     const userSetToken = await db.query(
