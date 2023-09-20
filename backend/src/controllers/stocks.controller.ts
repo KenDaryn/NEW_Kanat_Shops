@@ -3,6 +3,7 @@ import db from "../db/db";
 import ActionsSchema, { Actions } from "../models/actions.models";
 import validate from "../middlewares/validateRequest";
 import { nanoid } from "nanoid";
+import { log } from "console";
 
 const controller: Router = express.Router();
 
@@ -301,7 +302,61 @@ controller.put("/sendClient/:id", async (req: Request, res: Response) => {
     if (!user_id.rows.length) {
       return res.status(400).send({ message: "User not found" });
     }
-    const date = new Date().toLocaleString();
+    const data = await db.query(
+      ` select
+        a.item_id,
+        i.create_date,
+        i.name as "item_name",
+        i.image,
+        a.date,
+        a.qty,
+        a.total_price,
+        a.price,
+        a.invoice_number
+        from actions a
+        inner join items i on i.id = a.item_id
+        where a.operation_type_id = 1 and a.item_id = $1
+        limit $2
+          `,
+      [id, count]
+    );
+  console.log(data.rows.length);
+  const date = new Date().toLocaleString();
+  let i = 0;
+  while (i < data.rows.length) {
+    await db.query(
+      `
+        INSERT INTO history 
+        (operation_type_id, 
+          item_id, 
+          qty, 
+          price, 
+          total_price, 
+          date,
+          user_id,
+          invoice_number)
+          VALUES 
+          ($1, 
+          $2,
+          $3,
+          $4, 
+          $5, 
+          $6, 
+          (SELECT id FROM users WHERE token = $7),
+          $8
+          )`,
+      [ 2,
+        id, 
+        data.rows[i].qty, 
+        data.rows[i].price, 
+        data.rows[i].total_price, 
+        date, 
+        token, 
+        data.rows[i].invoice_number]
+    );
+    i++;
+  }
+   // тут надо добавить цикл который будет пробегать по массиве и записывать в таблицу history
     await db.query(
       `UPDATE actions SET operation_type_id = 2, update_date = $1,
         user_id = (SELECT id FROM users WHERE token = $2)
@@ -354,10 +409,12 @@ controller.put("/sendStock/:id", async (req: Request, res: Response) => {
         return res.status(400).send({ message: "User not found" });
       }
       const date = new Date().toLocaleString();
+      console.log('зашел сюда');
+      
       await db.query(
         `UPDATE actions SET operation_type_id = 1, update_date = $1,
             user_id = (SELECT id FROM users WHERE token = $2)
-            WHERE id in (select id from actions where item_id = $3 and operation_type_id = 3 order by date asc limit $4)
+            WHERE id in (select id from actions where item_id = $3 and operation_type_id = 2 order by date asc limit $4)
             `,
         [date, token, parseInt(id), count]
       );
