@@ -233,10 +233,8 @@ controller.delete("/:invoice_number", async (req: Request, res: Response) => {
 
 controller.put("/:invoice_number", async (req: Request, res: Response) => {
   try {
-    const invoice_number = req.params.invoice_number;
-    
+    const invoice_number = req.params.invoice_number;    
     const {item_id, source_name, qty, price,id_shop, count} = req.body;
-    
     const token = req.get("Authorization");
     if (!token) res.status(400).send({ message: "Token must be present" });
     const user_id = await db.query("SELECT id FROM users WHERE token = $1", [
@@ -245,18 +243,11 @@ controller.put("/:invoice_number", async (req: Request, res: Response) => {
     if (!user_id.rows.length) {
       return res.status(400).send({ message: "User not found" });
     }
-    const data_invoice = await db.query(
-      ` select sum(qty) from actions where invoice_number = $1
-          `,
-      [invoice_number]
-    );
   const date = new Date().toLocaleString();
   
-  if(qty > count)
+  if(parseInt(qty) > parseInt(count))
   {
-    const total = qty - count;
-    console.log('Total' + total);
-    
+    const total = parseInt(qty) - parseInt(count);
     await db.query(
       `UPDATE 
       actions 
@@ -320,11 +311,14 @@ controller.put("/:invoice_number", async (req: Request, res: Response) => {
       where invoice_number = $8`,
       [source_name, item_id, price, date, id_shop, token,date,invoice_number]
     )
-  }if(qty < count)
+  }if(parseInt(count) > parseInt(qty))
   {
-    const total = count - qty;
+    const total = parseInt(count) - parseInt(qty);
     await db.query(
-      `DELETE actions where invoice_number = $1 limit $2`,[invoice_number,total]
+      `DELETE FROM actions WHERE id IN (
+        SELECT id FROM actions WHERE invoice_number = $1 LIMIT $2
+    )`,
+      [invoice_number, total]
     );
     await db.query(
       `UPDATE 
@@ -339,8 +333,8 @@ controller.put("/:invoice_number", async (req: Request, res: Response) => {
       user_id = (SELECT id FROM users WHERE token = $6),
       date = $7
       where invoice_number = $8`,
-      [source_name, item_id, price, date, id_shop, token,date,invoice_number]
-    )
+      [source_name, item_id, price, date, id_shop, token, date, invoice_number]
+    );
   }
     res.status(200).send({ message: "update was successful" });
   } catch (error) {

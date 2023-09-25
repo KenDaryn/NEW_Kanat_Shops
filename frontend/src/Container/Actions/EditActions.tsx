@@ -68,12 +68,14 @@ const EditActions = () => {
   }
   const [qty, setQty] = React.useState('');
   const inputQty = (e: ChangeEvent<HTMLInputElement>) => {
-    setQty(e.target.value as string);
+    const inputValue = e.target.value.replace(/[^0-9]/g, "");
+    setQty(inputValue);
   }
   const [price, setPrice] = React.useState('');
   const inputPrice = (e: ChangeEvent<HTMLInputElement>) => {
-    setPrice(e.target.value as string);
-  }
+    const inputValue = e.target.value.replace(/[^0-9]/g, "");
+    setPrice(inputValue);
+  };
 
   const [editActions, { error }] = useEditActionsMutation()
   const navigate = useNavigate()
@@ -151,15 +153,18 @@ const EditActions = () => {
               id="outlined-basic"
               label="Количество"
               variant="outlined"
+              value={qty}
               onChange={inputQty}
             />
             <Typography sx={{ pb: 1 }}>Цена: {actionsInfo[0].price}</Typography>
             <TextField
               sx={{ pb: 1 }}
               fullWidth
-              id="outlined-basic"
               label="Цена"
               variant="outlined"
+              id="formatted-numberformat-input"
+              type="text"
+              value={price}
               onChange={inputPrice}
             />
             {user.user.role === "admin" ? (

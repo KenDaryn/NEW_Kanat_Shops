@@ -116,7 +116,7 @@ const AddActions = () => {
               <TextField
                 value={form.count}
                 onChange={inputChangeHandler}
-                id="outlined-basic"
+                id="formatted-numberformat-input"
                 label="Количество"
                 variant="outlined"
                 name="count"
@@ -127,7 +127,7 @@ const AddActions = () => {
               <TextField
                 value={form.summ}
                 onChange={inputChangeHandler}
-                id="outlined-basic"
+                id="formatted-numberformat-input"
                 label="Цена товара"
                 variant="outlined"
                 name="summ"
