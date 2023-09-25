@@ -1,5 +1,4 @@
 import express, { Request, Router, Response } from "express";
-import processFile from "../middlewares/uploadsImageSmall";
 import { format } from "util";
 import { Storage } from "@google-cloud/storage";
 import db from "../db/db";
@@ -7,6 +6,8 @@ import ItemsSchema, { Items } from "../models/item.model";
 import validate from "../middlewares/validateRequest";
 import path from "path";
 import { nanoid } from "nanoid";
+import { log } from "console";
+import processFile from "../middlewares/uploadsImageSmall";
 
 const controller: Router = express.Router();
 
@@ -20,7 +21,11 @@ controller.get("/", async (req: Request, res: Response) => {
   try {
     const item = await db.query(
       `
-select*from items where state = $1
+      select
+      (select count(id) from actions where i.id in (item_id)),
+      *
+      from items i
+      where state = $1
 `,
       [true]
     );
@@ -31,39 +36,23 @@ select*from items where state = $1
   }
 });
 
-// controller.get("/:id", async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const item = await db.query(
-//       `
-//         SELECT
-//         s.id,
-//         s.item_name,
-//         s.price,
-//         s.item_description,
-//         s.id_category,
-//         s.id_subcategory,
-//         s.image_small,
-//         s.create_date,
-//         s.id_user,
-//         u.username
-//         FROM items s
-//         INNER JOIN items_categories ic ON ic.id = s.id_category
-//         INNER JOIN items_subcategories isc ON isc.id = s.id_subcategory
-//         INNER JOIN users u ON u.id = s.id_user
-//         WHERE s.id = $1`,
-//       [id]
-//     );
+controller.get("/archive", async (req: Request, res: Response) => {
+  try {
+    const item = await db.query(
+      `
+      select
+      *
+      from items i
+      where state = $1
+`,
+      [false]
+    );
 
-//     if (item.rows.length === 0) {
-//       res.status(404).send({ error: "Item not found" });
-//     } else {
-//       res.status(200).send(item.rows);
-//     }
-//   } catch (error) {
-//     res.status(500).send({ error: error.message });
-//   }
-// });
+    res.status(200).send(item.rows);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
 
 controller.post("/", processFile, async (req: Request, res: Response) => {
   // Тут надо поменять логику в части сначала добавить запись в бд потом добавить ссылку на фото
@@ -164,12 +153,13 @@ controller.put(
   }
 );
 
+// Тут добавить удаление фото в google storage не сделал!!!!!!!!!!!!!!!!!!
 controller.delete("/:id", async (req: Request, res: Response) => {
   // Добавить проверку на наличие записи по item
   try {
     const id = req.params.id;
     const deletedItem = await db.query(
-      "DELETE !FROM items WHERE id = $1 RETURNING *",
+      "DELETE FROM items WHERE id = $1 RETURNING *",
       [id]
     );
 
@@ -187,10 +177,20 @@ controller.delete("/:id", async (req: Request, res: Response) => {
 controller.put("/archive/:id", async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    console.log("ID - " + id);
     await db.query("update items set state = $1 where id = $2", [false, id]);
     res.status(200).send({
       message: "Item archive successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+controller.put("/active/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    await db.query("update items set state = $1 where id = $2", [true, id]);
+    res.status(200).send({
+      message: "Item active successfully",
     });
   } catch (error) {
     res.status(500).send({ message: error.message });

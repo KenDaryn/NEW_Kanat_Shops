@@ -11,7 +11,7 @@ controller.post(
   validate(UserSchema),
   async (req: Request, res: Response) => {
     try {
-      const { username, password, id_shops } = req.body as Users;
+      const { username, password, id_shops, id_role } = req.body;
       const user = await db.query("SELECT * FROM users WHERE login = $1", [
         username,
       ]);
@@ -25,7 +25,7 @@ controller.post(
         `INSERT INTO users
             (login, password, id_role, create_date, id_shops, blocked)
             VALUES ($1, $2, $3, $4, $5, $6)`,
-        [username, password, 2, date, id_shops, false]
+        [username, password, id_role, date, id_shops, false]
       );
       res.status(200).send(newUser.rows[0]);
     } catch (error) {
@@ -47,12 +47,10 @@ controller.post("/login", async (req: Request, res: Response) => {
       "SELECT password from users where login = $1",
       [username]
     );
-    console.log(passwordUser +' Пароль с базы');
-    console.log('Пароль который быд получен ' +  password);
     
     if (passwordUser.rows[0].password !== password) {
-      // return res.status(400).send({ message: "Wrong password" });
-      return res.status(400).send({ message: passwordUser.rows[0] });
+      return res.status(400).send({ message: "Wrong password" });
+      // return res.status(400).send({ message: passwordUser.rows[0] });
     }
     const token = nanoid();
     const userSetToken = await db.query(
@@ -68,6 +66,7 @@ controller.post("/login", async (req: Request, res: Response) => {
             u.login,
             u.token,
             r.role,
+            id_shops,
             u.blocked
             from users u
             left join user_roles r on r.id = u.id_role
@@ -82,9 +81,7 @@ controller.post("/login", async (req: Request, res: Response) => {
 
 controller.post("/change", async (req: Request, res: Response) => {
   try {
-    const { username, password, id_shops } = req.body as Users;
-    console.log(req.body);
-
+    const { username, password, id_shops, id_role } = req.body;
     const user = await db.query("SELECT * FROM users WHERE login = $1", [
       username,
     ]);
@@ -92,18 +89,29 @@ controller.post("/change", async (req: Request, res: Response) => {
       return res.status(401).send({ message: "Username not found!" });
     }
     const date = new Date().toLocaleString();
-    if (id_shops) {
+    if (id_shops && !id_role && !password) {
       await db.query(
         `
         update users
-        set password = $1,
-        id_shops = $2,
-        last_update_date = $3
-        where login = $4
+        set 
+        id_shops = $1,
+        last_update_date = $2
+        where login = $3
         `,
-        [password, id_shops as Number, date, username]
+        [id_shops as Number, date, username]
       );
-    } else {
+    }if(!id_shops && id_role && !password){
+      await db.query(
+        `
+        update users
+        set 
+        id_role = $1,
+        last_update_date = $2
+        where login = $3
+        `,
+        [id_role as Number, date, username]
+      )
+    } if(!id_shops && !id_role && password){ 
       await db.query(
         `
         update users
@@ -112,7 +120,53 @@ controller.post("/change", async (req: Request, res: Response) => {
         where login = $3
         `,
         [password, date, username]
-      );
+      )
+    }if(id_shops && id_role && password){ 
+      await db.query(
+        `
+        update users
+        set password = $1,
+        id_shops = $2,
+        id_role = $3,
+        last_update_date = $4
+        where login = $5
+        `,
+        [password, id_shops as Number,id_role as Number,date, username]
+      )
+    }if(!id_shops && id_role && password){ 
+      await db.query(
+        `
+        update users
+        set password = $1,
+        id_role = $2,
+        last_update_date = $3
+        where login = $4
+        `,
+        [password, id_role as Number,date, username]
+      )
+    }if(id_shops && !id_role && password){ 
+      await db.query(
+        `
+        update users
+        set password = $1,
+        id_shops = $2,
+        last_update_date = $3
+        where login = $4
+        `,
+        [password, id_shops as Number,date, username]
+      )
+    }if(id_shops && id_role && !password){ 
+      await db.query(
+        `
+        update users
+        set
+        id_shops = $1,
+        id_role = $2,
+        last_update_date = $3
+        where login = $4
+        `,
+        [id_shops as Number,id_role as Number,date, username]
+      )
     }
     res.status(200).send({ message: "update successfull" });
   } catch (error) {
