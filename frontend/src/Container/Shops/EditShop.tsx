@@ -11,7 +11,7 @@ interface Props {
   address: string
   comment: string
 }
-
+// Надо как нибудь сделать как будет время
 const EditSupplier = () => {
   // const { id } = useParams()
 

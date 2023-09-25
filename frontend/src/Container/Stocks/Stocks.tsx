@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router'
 
 const Stocks = () => {
   const { data: stocks, refetch } = useGetStocksQuery()
+  
   useEffect(() => {
     refetch()
   }, [refetch])
@@ -34,8 +35,8 @@ const Stocks = () => {
     : []
 
   const navigate = useNavigate()
-  const hadleStockInfo = (id_item: string) => {
-    navigate(`/stockInfo/${id_item}`)
+  const hadleStockInfo = (id_item: string,id_shop:string) => {
+    navigate(`/stockInfo/${id_item}_${id_shop}`)
   }
   return (
     <Container>
@@ -58,17 +59,20 @@ const Stocks = () => {
             <Grid container spacing={2} sx={{ mt: 2 }}>
               {filteredStocks &&
                 filteredStocks.map((stocks: any) => (
-                  <Grid item xs={12} sm={4} md={4} key={stocks.item_id}>
+                  <Grid item xs={12} sm={4} md={4} key={stocks.serial_number}>
                     <Paper elevation={3}>
                       <Card
                         sx={{
                           background:
                             'linear-gradient(10deg,	#FFF8DC 10%,#F5DEB3 90%)',
                         }}
-                        onClick={() => hadleStockInfo(stocks.item_id)}
+                        onClick={() => hadleStockInfo(stocks.item_id, stocks.id_shop)}
                       >
                         <Typography sx={{ pl: 1, pt: 1 }}>
                           Товар: {stocks.item_name}
+                        </Typography>
+                        <Typography sx={{ pl: 1 }}>
+                          Магазин: {stocks.shop_name}
                         </Typography>
                         <Typography sx={{ pl: 1 }}>
                           Сумма: {stocks.total_price}
@@ -77,7 +81,7 @@ const Stocks = () => {
                           Количество: {stocks.qty}
                         </Typography>
                         <Typography sx={{ pl: 1 }}>
-                          Средняя цена: {stocks.avg_price}
+                          Последняя цена: {stocks.price}
                         </Typography>
                       </Card>
                     </Paper>

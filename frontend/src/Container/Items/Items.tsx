@@ -12,13 +12,14 @@ import AddButton from '../../Components/UI/Button/AddButton'
 import { Items } from '../../interfaces/Items'
 import Loading from '../../Components/UI/Loading/Loading'
 import { MouseEvent, useEffect, useState } from 'react'
-import { Alert, Container, Grid, Snackbar, ThemeProvider } from '@mui/material'
+import { Alert, Button, Container, Grid, Snackbar, ThemeProvider } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import SuccessPopup from '../../Components/UI/SuccessPopup/SuccessPopup'
 import noPhoto from '../../assets/no-photo.png'
+import { log } from 'console'
 
 const ItemsContainer = () => {
-  const { data, isLoading, isError, error } = useGetAllItemsQuery()
+  const { data, refetch, isLoading, isError, error } = useGetAllItemsQuery()  
   const [open, setOpen] = useState(false)
   const [show, setShow] = useState(false)
   const [openModal, setOpenModal] = useState(false)
@@ -28,12 +29,14 @@ const ItemsContainer = () => {
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null)
   const [uncoverForm, setUncoverForm] = useState(false)
   const navigate = useNavigate()
-
+// доработать архив, корректировка фото, вывод успех или отказ, удаление
   useEffect(() => {
     setOpen(isError)
   }, [isError])
+  useEffect(() => {
+    refetch()
+  }, [refetch])
   const [items, setItems] = useState<Items[]>([])
-
   useEffect(() => {
     if (data) {
       setItems(data as [])
@@ -58,6 +61,7 @@ const ItemsContainer = () => {
 
   const handleAchivItem = (itemId: number) => {
     archiveItem(itemId)
+    navigate('/archive')
   }
 
   const handleConfirmDelete = async () => {
@@ -78,6 +82,9 @@ const ItemsContainer = () => {
     }
   }
 
+  const archive = ()=>{
+navigate('/archive')
+  }
   return (
     <ThemeProvider theme={GlobalTheme}>
       <Container
@@ -97,12 +104,13 @@ const ItemsContainer = () => {
         />
         {isLoading && <Loading />}
         <AddButton buttonText="Создать Товар" onClick={handleAddButtonClick} />
+        <Button variant="contained" color="info" fullWidth onClick={archive}>Архив</Button>
         {uncoverForm && <AddItem />}
         <Grid container>
           {items &&
-            items.map((item) => {
+            items.map((item:any) => {
               return (
-                <Grid item key={item.id} xs={12} md={4}>
+                <Grid item key={item.id} xs={12} md={3}>
                   <Snackbar
                     anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     open={open}
@@ -131,7 +139,7 @@ const ItemsContainer = () => {
                     <ItemsList
                       id={item.id}
                       item_name={item.name}
-                      disabled={false}
+                      disabled={item.count !== '0' ?true:false}
                       onDelete={() => handleDeleteItem(item.id)}
                       onEdit={() => navigate(`/edit-item/${item.id}`)}
                       image_small={item.image ? item.image : noPhoto}

@@ -21,6 +21,9 @@ import SendInfo from './Container/Stocks/SendInfo'
 import StocksReturn from './Container/Stocks/StockReturn'
 import StockReturnInfo from './Container/Stocks/SrockReturnInfo'
 import StocksCancel from './Container/Stocks/StockCancel'
+import Archive from './Container/Items/Archive'
+import History from './Container/History/History'
+import EditActions from './Container/Actions/EditActions'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import {
   CssBaseline,
@@ -77,6 +80,18 @@ function App() {
                 </ProtectedRoute>
               }
             />
+                        <Route
+              path="/archive"
+              element={
+                <ProtectedRoute
+                  isAllowed={user.isAuthenticated}
+                  redirectPath="/"
+                >
+                  <Archive />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/allUsers"
               element={
@@ -111,6 +126,18 @@ function App() {
                 </ProtectedRoute>
               }
             />
+                        <Route
+              path="/history"
+              element={
+                <ProtectedRoute
+                  isAllowed={user.isAuthenticated}
+                  redirectPath="/"
+                >
+                  <History />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/stocksLess"
               element={
@@ -133,7 +160,17 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/editActions/:id"
+              element={
+                <ProtectedRoute
+                  isAllowed={user.isAuthenticated}
+                  redirectPath="/"
+                >
+                  <EditActions />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/stocksReturnInfo/:id"
               element={

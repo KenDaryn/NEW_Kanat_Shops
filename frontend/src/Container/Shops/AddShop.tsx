@@ -88,6 +88,7 @@ const AddShops = () => {
           onChange={inputChangeHandler}
         />
         <LoadingButton
+        disabled={form.address&&form.name?false:true}
           loading={false}
           fullWidth
           variant="contained"

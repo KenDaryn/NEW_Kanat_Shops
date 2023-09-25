@@ -13,9 +13,26 @@ const actionsApi = api.injectEndpoints({
         body: actions,
       }),
     }),
+    deleteActions: build.mutation<void, number>({
+      query: (itemId) => ({
+        url: `/actions/${itemId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Items"],
+    }),
+    getActionsByInvoiceNumber: build.query<any, number | string>({
+      query: (id) => `/actions/${id}`,
+    }),
+    editActions: build.mutation<any, { invoice_number: any; invoice_body: any }>({
+      query: ({ invoice_number, invoice_body }) => ({
+        url: `/actions/${invoice_number}`,
+        method: "PUT",
+        body: invoice_body,
+      })
+    }),
   }),
 });
 
-export const { useGetActionsQuery, useAddActionsMutation } = actionsApi;
+export const { useGetActionsQuery, useAddActionsMutation, useDeleteActionsMutation,useGetActionsByInvoiceNumberQuery, useEditActionsMutation } = actionsApi;
 
 export default actionsApi;

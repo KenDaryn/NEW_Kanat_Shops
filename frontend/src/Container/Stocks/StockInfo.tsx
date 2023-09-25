@@ -18,6 +18,7 @@ import {
   OutlinedInput,
   InputAdornment,
   Button,
+  Box,
 } from '@mui/material'
 import { useGetStockByIdQuery } from '../../Store/services/stocks'
 import { useNavigate, useParams } from 'react-router'
@@ -27,6 +28,7 @@ import {
   useSendClientMutation,
   useSendCancelMutation,
 } from '../../Store/services/stocks'
+import { log } from 'console'
 
 const StockInfo = () => {
   const navigate = useNavigate()
@@ -49,7 +51,8 @@ const StockInfo = () => {
   const [sendCancels] = useSendCancelMutation()
 
   const sendClient = async () => {
-    const count = { itemId: params.id, count: parseInt(amount) }
+    const count = { itemId: params.id, count: parseInt(amount), shop_id:stockInfo[0].id_shop }
+    
     const data = await sendClients(count)
     if (!(data as { error: object }).error) {
       setAmount('')
@@ -58,7 +61,7 @@ const StockInfo = () => {
   }
 
   const sendCancel = async () => {
-    const count = { itemId: params.id, count: parseInt(amount) }
+    const count = { itemId: params.id, count: parseInt(amount),shop_id:stockInfo[0].id_shop }
     const data = await sendCancels(count)
     if (!(data as { error: object }).error) {
       setAmount('')
@@ -71,7 +74,7 @@ const StockInfo = () => {
   }
   return (
     <ThemeProvider theme={GlobalTheme}>
-      <Container sx={{ pt: 2 }}>
+      <Container sx={{ pt: 2, width:'350px' }}>
         <Button
           fullWidth
           variant="contained"
@@ -82,7 +85,6 @@ const StockInfo = () => {
         >
           Назал
         </Button>
-
         {isLoading && <Loading />}
         {stockInfo ? (
           <Paper elevation={3}>
@@ -96,13 +98,12 @@ const StockInfo = () => {
                 title={stockInfo[0].item_name}
                 subheader={`Дата созданя ${stockInfo[0].create_date}`}
               />
-              <CardMedia
-                component="img"
-                height="400"
-                width="300"
-                image={stockInfo[0].image}
-                alt={stockInfo[0].item_name}
-              />
+              <Box width="300px" height="300px">
+                <img
+                  src={stockInfo[0].image}
+                  alt={stockInfo[0].item_name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>                        
+              </Box> 
               <CardContent>
                 <Typography variant="body2" color="text.secondary">
                   Макс дата прихода: {stockInfo[0].max_date}
@@ -117,10 +118,13 @@ const StockInfo = () => {
                   Общая сумма: {stockInfo[0].total_price}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Средняя цена: {stockInfo[0].avg_price}
+                  Последная цена: {stockInfo[0].price}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Магазин: {stockInfo[0].shop_name}
                 </Typography>
               </CardContent>
-              <FormControl sx={{ ml: 1, mr: 10, maxwidth: 800 }}>
+              <FormControl sx={{ ml: 1, mr: 1 }}>
                 <InputLabel htmlFor="outlined-adornment-amount">
                   Количество
                 </InputLabel>

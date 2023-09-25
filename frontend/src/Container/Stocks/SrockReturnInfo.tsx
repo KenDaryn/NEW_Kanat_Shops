@@ -17,13 +17,14 @@ import {
   InputLabel,
   OutlinedInput,
   Button,
+  Box,
 } from '@mui/material'
 import { useGetStockReturnByIdQuery } from '../../Store/services/stocks'
 import { useNavigate, useParams } from 'react-router'
 import Loading from '../../Components/UI/Loading/Loading'
 import { ChangeEvent, useState } from 'react'
 import {
-  useSendStockMutation,
+  useReturnSendStockMutation,
   useSendCancelReturnMutation,
 } from '../../Store/services/stocks'
 
@@ -42,11 +43,11 @@ const StockReturnInfo = () => {
   }
 
   // Тут надо поменять мутацию по по списанию
-  const [sendStock] = useSendStockMutation()
+  const [sendStock] = useReturnSendStockMutation()
   const [sendCancels] = useSendCancelReturnMutation()
 
   const sendStocks = async () => {
-    const count = { itemId: params.id, count: parseInt(amount) }
+    const count = { itemId: params.id, count: parseInt(amount), shop_id:stockInfo[0].id_shop }
     const data = await sendStock(count)
     if (!(data as { error: object }).error) {
       setAmount('')
@@ -55,7 +56,8 @@ const StockReturnInfo = () => {
   }
 
   const sendCancel = async () => {
-    const count = { itemId: params.id, count: parseInt(amount) }
+    const count = { itemId: params.id, count: parseInt(amount), shop_id:stockInfo[0].id_shop }
+    
     const data = await sendCancels(count)
     if (!(data as { error: object }).error) {
       setAmount('')
@@ -67,7 +69,7 @@ const StockReturnInfo = () => {
   }
   return (
     <ThemeProvider theme={GlobalTheme}>
-      <Container sx={{ pt: 2 }}>
+      <Container sx={{ pt: 2, width:'350px' }}>
         <Button
           fullWidth
           variant="contained"
@@ -92,13 +94,12 @@ const StockReturnInfo = () => {
                 title={stockInfo[0].item_name}
                 subheader={`Дата созданя ${stockInfo[0].create_date}`}
               />
-              <CardMedia
-                component="img"
-                height="400"
-                width="300"
-                image={stockInfo[0].image}
-                alt={stockInfo[0].item_name}
-              />
+             <Box width="300px" height="300px">
+                <img
+                  src={stockInfo[0].image}
+                  alt={stockInfo[0].item_name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>                        
+              </Box> 
               <CardContent>
                 <Typography variant="body2" color="text.secondary">
                   Макс дата прихода: {stockInfo[0].max_date}
@@ -113,10 +114,13 @@ const StockReturnInfo = () => {
                   Общая сумма: {stockInfo[0].total_price}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Средняя цена: {stockInfo[0].avg_price}
+                Последная цена: {stockInfo[0].price}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Магазин: {stockInfo[0].shop_name}
                 </Typography>
               </CardContent>
-              <FormControl sx={{ ml: 1, mr: 10, maxwidth: 800 }}>
+              <FormControl sx={{ ml: 1, mr: 1 }}>
                 <InputLabel htmlFor="outlined-adornment-amount">
                   Количество
                 </InputLabel>

@@ -9,11 +9,11 @@ import {
   TextField,
 } from '@mui/material'
 import { GlobalTheme } from '../..'
-import { useGetStocksCancelQuery } from '../../Store/services/stocks'
-import { useNavigate } from 'react-router'
+import { useGetHistoryQuery } from '../../Store/services/history'
 
-const StocksCancel = () => {
-  const { data: stocks, refetch } = useGetStocksCancelQuery()
+const History = () => {
+  const { data: stocks, refetch } = useGetHistoryQuery()
+  
   useEffect(() => {
     refetch()
   }, [refetch])
@@ -33,17 +33,13 @@ const StocksCancel = () => {
       })
     : []
 
-  const navigate = useNavigate()
-  const hadleStockInfo = (id_item: string,id_shop:string) => {
-    navigate(`/stockInfo/${id_item}_${id_shop}`)
-  }
   return (
     <Container>
       <ThemeProvider theme={GlobalTheme}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={12}>
             <Typography variant="h4" align="center">
-              Списан
+              История
             </Typography>
           </Grid>
           <Grid item xs={12} sm={6} md={12}>
@@ -58,29 +54,34 @@ const StocksCancel = () => {
             <Grid container spacing={2} sx={{ mt: 2 }}>
               {filteredStocks &&
                 filteredStocks.map((stocks: any) => (
-                  <Grid item xs={12} sm={4} md={4} key={stocks.item_id}>
+                  <Grid item xs={12} sm={4} md={4} key={stocks.id}>
                     <Paper elevation={3}>
                       <Card
                         sx={{
                           background:
                             'linear-gradient(10deg,	#FFF8DC 10%,#F5DEB3 90%)',
                         }}
-                        // onClick={() => hadleStockInfo(stocks.item_id, stocks.id_shop)}
                       >
+                        <Typography sx={{ pl: 1, pt: 1 }}>
+                          Тип операции: {stocks.operation_type}
+                        </Typography>
                         <Typography sx={{ pl: 1, pt: 1 }}>
                           Товар: {stocks.item_name}
                         </Typography>
                         <Typography sx={{ pl: 1 }}>
-                          Сумма: {stocks.total_price}
+                          Магазин: {stocks.shop}
+                        </Typography>
+                        <Typography sx={{ pl: 1 }}>
+                          Сумма: {stocks.price}
                         </Typography>
                         <Typography sx={{ pl: 1 }}>
                           Количество: {stocks.qty}
                         </Typography>
                         <Typography sx={{ pl: 1 }}>
-                          Последная цена: {stocks.price}
+                          Дата: {stocks.date}
                         </Typography>
                         <Typography sx={{ pl: 1 }}>
-                          Магазин: {stocks.shop_name}
+                          Пользователь: {stocks.login}
                         </Typography>
                       </Card>
                     </Paper>
@@ -94,4 +95,4 @@ const StocksCancel = () => {
   )
 }
 
-export default StocksCancel
+export default History

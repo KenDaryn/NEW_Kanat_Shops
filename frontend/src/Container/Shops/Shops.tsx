@@ -14,23 +14,17 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton,
   Collapse,
   ThemeProvider,
 } from '@mui/material'
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { GlobalTheme } from '../..'
-import ModeEditTwoToneIcon from '@mui/icons-material/ModeEditTwoTone'
 import QueueTwoToneIcon from '@mui/icons-material/QueueTwoTone'
 import SignpostTwoToneIcon from '@mui/icons-material/SignpostTwoTone'
-import InsertCommentTwoToneIcon from '@mui/icons-material/InsertCommentTwoTone'
-import PersonPinTwoToneIcon from '@mui/icons-material/PersonPinTwoTone'
 import ExpandLessTwoToneIcon from '@mui/icons-material/ExpandLessTwoTone'
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone'
 import StoreTwoToneIcon from '@mui/icons-material/StoreTwoTone'
-import Loading from '../../Components/UI/Loading/Loading'
 import {
   useGetShopsQuery,
   useDeleteShopMutation,

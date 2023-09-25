@@ -106,17 +106,18 @@ const HomePage = () => {
                       Магазины
                     </Typography>
                   </Paper>
-                  <Paper component={Link} to="/items" elevation={15} sx={style}>
-                    <Typography
-                      align="center"
-                      variant="h6"
-                      sx={{ pt: 1, pb: 1, color: 'black' }}
-                    >
-                      Каталог товаров
-                    </Typography>
-                  </Paper>
                 </>
               ) : null}
+              {user.user.role === 'admin' || user.user.role === 'manager' ? (
+              <Paper component={Link} to="/items" elevation={15} sx={style}>
+              <Typography
+              align="center"
+              variant="h6"
+              sx={{ pt: 1, pb: 1, color: 'black' }}
+              >Каталог товаров</Typography>
+                                    </Paper>
+                  
+                  ):(null)}
               <Paper
                 component={Link}
                 to="/stocksLess"
@@ -182,7 +183,7 @@ const HomePage = () => {
                   Списан
                 </Typography>
               </Paper>
-              <Paper component={Link} to="/orders" elevation={15} sx={style}>
+              <Paper component={Link} to="/history" elevation={15} sx={style}>
                 <Typography
                   align="center"
                   variant="h6"

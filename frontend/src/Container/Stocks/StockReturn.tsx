@@ -34,8 +34,8 @@ const StocksReturn = () => {
     : []
 
   const navigate = useNavigate()
-  const hadleStockInfo = (id_item: string) => {
-    navigate(`/stocksReturnInfo/${id_item}`)
+  const hadleStockInfo = (id_item: string,id_shop:string) => {
+    navigate(`/stocksReturnInfo/${id_item}_${id_shop}`)
   }
   return (
     <Container>
@@ -65,7 +65,7 @@ const StocksReturn = () => {
                           background:
                             'linear-gradient(10deg,	#FFF8DC 10%,#F5DEB3 90%)',
                         }}
-                        onClick={() => hadleStockInfo(stocks.item_id)}
+                        onClick={() => hadleStockInfo(stocks.item_id, stocks.id_shop)}
                       >
                         <Typography sx={{ pl: 1, pt: 1 }}>
                           Товар: {stocks.item_name}
@@ -77,7 +77,10 @@ const StocksReturn = () => {
                           Количество: {stocks.qty}
                         </Typography>
                         <Typography sx={{ pl: 1 }}>
-                          Средняя цена: {stocks.avg_price}
+                          Последная цена: {stocks.price}
+                        </Typography>
+                        <Typography sx={{ pl: 1 }}>
+                          Магазин: {stocks.shop_name}
                         </Typography>
                       </Card>
                     </Paper>

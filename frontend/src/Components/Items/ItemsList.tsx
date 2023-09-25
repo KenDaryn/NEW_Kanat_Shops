@@ -7,9 +7,11 @@ import {
   Button,
   CardMedia,
   Container,
+  Box,
 } from '@mui/material'
 
 import { MouseEventHandler } from 'react'
+
 
 interface Props {
   id: number
@@ -30,32 +32,37 @@ const ItemsList = ({
   onEdit,
   onAchiv,
   image_small,
+  disabled
 }: Props) => {
   return (
-    <Card sx={{ width: 345 }}>
-      <CardMedia
-        component="img"
+    <Card sx={{ width: 280, height:190}}>
+      <CardContent >
+        <Box display="flex">
+        <Box width="150px" height="100px" sx={{mr:4}}> {/* Задайте желаемую ширину и высоту */}
+      <img
+        src={image_small}
         alt={item_name}
-        height="345"
-        width="345"
-        image={image_small}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
       />
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
+    </Box>
+    <Box>
+    <Typography>
           {item_name}
         </Typography>
-        <Typography gutterBottom component="div">
+        <Typography>
           Дата: {create_date}
         </Typography>
+    </Box>
+        </Box>
       </CardContent>
-      <CardActions>
-        <Button size="small" onClick={onDelete}>
+      <CardActions >
+        <Button size="small" onClick={onDelete} disabled={disabled} variant="contained" color="error" sx={{width:90}}>
           Удалить
         </Button>
-        <Button size="small" onClick={onEdit}>
-          Корректировать
+        <Button size="small" onClick={onEdit} variant="contained" color="success" sx={{width:90}}>
+          Коррект
         </Button>
-        <Button size="small" onClick={onAchiv}>
+        <Button size="small" onClick={onAchiv} variant="contained" color="secondary" sx={{width:90}}>
           Архив
         </Button>
       </CardActions>
@@ -64,3 +71,8 @@ const ItemsList = ({
 }
 
 export default ItemsList
+
+
+
+
+

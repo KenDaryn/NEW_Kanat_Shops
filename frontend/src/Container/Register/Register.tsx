@@ -26,16 +26,23 @@ import {
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { LockOutlined } from '@mui/icons-material'
 import { GlobalTheme } from '../..';
+import {useGetRolesQuery} from '../../Store/services/role'
 
+// Добавить выбор роля обязательное поле и отправку роля
 const Register = () => {
   const { data: shops } = useGetShopsQuery()
+  const { data:roles} = useGetRolesQuery()
   const [id_shop, setIdShop] = useState('')
+  const [id_role, setIdRole] = useState('')
 
   const [form, setForm] = useState<UserForm>({
     username: '',
     password: '',
   })
-
+  const handleChangeRole = (event: SelectChangeEvent) => {
+    const newValue = event.target.value
+    setIdRole(newValue)
+  }
   const handleChangeShop = (event: SelectChangeEvent) => {
     const newValue = event.target.value
     setIdShop(newValue)
@@ -68,6 +75,7 @@ const Register = () => {
       username: form.username,
       password: form.username,
       id_shops: id_shop,
+      id_role:id_role
     }
 
     const data = await signUp(SendForm)
@@ -141,15 +149,32 @@ const Register = () => {
                   ))}
               </Select>
             </FormControl>
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="demo-simple-select-label">Роль</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={id_role}
+                  label="Роль"
+                  onChange={handleChangeRole}
+                >
+                  {roles &&
+                    roles.map((role: any) => (
+                      <MenuItem value={role.id} key={role.id}>
+                        {role.role}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
             <Button
               type="submit"
               fullWidth
               variant="contained"
               color="primary"
               disabled={
-                // id_shop.length > 0 &&
-                form.username.length > 0 &&
-                form.password.length > 0
+                form.password &&
+                form.username &&
+                id_shop
                   ? false
                   : true
               }

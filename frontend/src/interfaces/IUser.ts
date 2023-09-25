@@ -4,5 +4,6 @@ export interface IUser {
   password: string;
   token: string;
   role?: string;
+  id_shops?:number
 //   blocked: boolean;
 }

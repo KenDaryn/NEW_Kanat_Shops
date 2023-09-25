@@ -8,6 +8,10 @@ const itemsApi = api.injectEndpoints({
       query: () => "/items",
       providesTags: () => [{ type: "Items", id: "LIST" }],
     }),
+    getAllItemsArchive: build.query<any, void>({
+      query: () => "/items/archive",
+      providesTags: () => [{ type: "Items", id: "LIST" }],
+    }),
     getItemById: build.query<Items[], number | string>({
       query: (id) => `/items/${id}`,
     }),
@@ -40,6 +44,12 @@ const itemsApi = api.injectEndpoints({
         method: "PUT",
       }),
     }),
+    activeItem: build.mutation<void, number>({
+      query: (itemId) => ({
+        url: `/items/active/${itemId}`,
+        method: "PUT",
+      }),
+    }),
   }),
 });
 
@@ -50,4 +60,6 @@ export const {
   useDeleteItemMutation,
   useEditItemMutation,
   useArchiveItemMutation,
+  useGetAllItemsArchiveQuery,
+  useActiveItemMutation
 } = itemsApi;

@@ -21,6 +21,8 @@ import {
   ThemeProvider,
 } from '@mui/material'
 import { GlobalTheme } from '../..'
+import { count, log } from 'console'
+
 
 const AddActions = () => {
   const user = useAppSelector(getUser)
@@ -69,7 +71,7 @@ const AddActions = () => {
     form.id_shop = id_shop
     form.id_item = id_item
     const data = await addActions(form)
-    if (!(data as { error: object }).error) {
+        if (!(data as { error: object }).error) {
       setForm({
         count: '',
         summ: '',
@@ -163,7 +165,9 @@ const AddActions = () => {
                   </Select>
                 </FormControl>
               </Grid>
-            ) : null}
+            ) : 
+            (null
+            )}
             <Grid item xs={12} md={12}>
               <Button
                 fullWidth
@@ -171,6 +175,8 @@ const AddActions = () => {
                 color="success"
                 type="submit"
                 className="submit"
+                disabled = {user.user.role === 'admin'?(id_item&&form.count&&form.summ&&form.from&&id_shop?false:true):(id_item&&form.count&&form.summ&&form.from?false:true)
+                  }
               >
                 Приход
               </Button>

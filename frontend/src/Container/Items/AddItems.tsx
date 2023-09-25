@@ -6,6 +6,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Alert, Button, Container, FormControl, Snackbar } from '@mui/material'
 import SuccessPopup from '../../Components/UI/SuccessPopup/SuccessPopup'
+import { log } from 'console'
 
 const AddItem = () => {
   const [addItem, { error, isError, isSuccess }] = useAddItemMutation()
@@ -38,7 +39,6 @@ const AddItem = () => {
 
   const inputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-
     setForm((prevState) => ({
       ...prevState,
       [name]: value,
@@ -110,6 +110,7 @@ const AddItem = () => {
           color="success"
           type="submit"
           className="submit"
+          disabled={form.item_name && form.image_small ? false : true}
         >
           Добавить
         </Button>

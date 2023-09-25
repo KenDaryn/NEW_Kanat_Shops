@@ -1,6 +1,7 @@
 // Добавить изменение пользователя
 // Добавить изменения магазина
 // Изменить на светлую тему
+// Надо продумать логику disabled
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import {
   Container,
@@ -27,15 +28,25 @@ import {
   useGetUsersQuery,
   useChangeMutation,
 } from '../../Store/services/allusers'
+import {useGetRolesQuery} from '../../Store/services/role'
 import { useGetShopsQuery } from '../../Store/services/shops'
 
 const AllUsers = () => {
   const { data: shops } = useGetShopsQuery()
+  const { data:roles} = useGetRolesQuery()
+
   const [id_shop, setIdShop] = useState('')
+  const [id_role, setIdRole] = useState('')
   const handleChangeShop = (event: SelectChangeEvent) => {
     const newValue = event.target.value
     setIdShop(newValue)
   }
+
+  const handleChangeRole = (event: SelectChangeEvent) => {
+    const newValue = event.target.value
+    setIdRole(newValue)
+  }
+
   const [status, setStatus] = useState(false)
   const [open, setOpen] = React.useState(false)
 
@@ -59,9 +70,9 @@ const AllUsers = () => {
   const [change, error] = useChangeMutation()
   const [username, setUsername] = useState('')
 
-  // useEffect(() => {
-  //   refetch()
-  // }, [refetch])
+  useEffect(() => {
+    refetch()
+  }, [refetch])
 
   interface UserFormChange {
     username: string
@@ -84,6 +95,7 @@ const AllUsers = () => {
       username: username,
       password: state.password,
       id_shops: id_shop,
+      id_role: id_role
     }
     await change(ChangeUser)
     setState({
@@ -149,7 +161,7 @@ const AllUsers = () => {
               value={state.password}
               onChange={inputChangeHandler}
               name="password"
-              // disabled={username.length > 0 ? false : true}
+              // disabled={state.username ? false : true}
             />
           </Grid>
           <Grid item xs>
@@ -171,13 +183,30 @@ const AllUsers = () => {
                     ))}
                 </Select>
               </FormControl>
+              <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="demo-simple-select-label">Роль</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={id_role}
+                  label="Роль"
+                  onChange={handleChangeRole}
+                >
+                  {roles &&
+                    roles.map((role: any) => (
+                      <MenuItem value={role.id} key={role.id}>
+                        {role.role}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
             </ThemeProvider>
             <Button
               type="submit"
               color="primary"
               variant="contained"
               disabled={
-                state.password.length > 0 || id_shop.length > 0 ? false : true
+                state.password || id_shop || id_role ?false : true
               }
               onClick={handleClick}
               sx={{ mt: 2 }}
@@ -203,7 +232,6 @@ const AllUsers = () => {
                   </Typography>
                   <Typography
                     gutterBottom
-                    variant="h6"
                     component="div"
                     sx={{ color: 'black' }}
                   >
@@ -211,7 +239,6 @@ const AllUsers = () => {
                   </Typography>
                   <Typography
                     gutterBottom
-                    variant="h6"
                     component="div"
                     sx={{ color: 'black' }}
                   >
@@ -219,7 +246,6 @@ const AllUsers = () => {
                   </Typography>
                   <Typography
                     gutterBottom
-                    variant="h6"
                     component="div"
                     sx={{ color: 'black' }}
                   >
@@ -227,7 +253,6 @@ const AllUsers = () => {
                   </Typography>
                   <Typography
                     gutterBottom
-                    variant="h6"
                     component="div"
                     sx={{ color: 'black' }}
                   >

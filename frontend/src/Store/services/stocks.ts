@@ -15,7 +15,6 @@ const stocksApi = api.injectEndpoints({
     getStocksReturn: build.query<any, void>({
       query: () => `/stocks/return`,
     }),
-
     getStocksSendClient: build.query<any, void>({
       query: () => `/stocks/sendClient`,
     }),
@@ -28,46 +27,53 @@ const stocksApi = api.injectEndpoints({
     getStockReturnById: build.query<any, number | string>({
       query: (id) => `/stocks/returnInfo/${id}`,
     }),
-    sendClient: build.mutation<any, { itemId: string | undefined; count: any }>(
+    sendClient: build.mutation<any, { itemId: string | undefined; count: any; shop_id:any }>(
       {
-        query: ({ itemId, count }) => ({
+        query: ({ itemId, count,shop_id }) => ({
           url: `/stocks/sendClient/${itemId}`,
           method: "PUT",
-          body: { count: count },
+          body: { count: count, shop_id:shop_id },
         }),
       }
     ),
-    sendReturn: build.mutation<any, { itemId: string | undefined; count: any }>(
+    sendReturn: build.mutation<any, { itemId: string | undefined; count: any;shop_id:any }>(
       {
-        query: ({ itemId, count }) => ({
+        query: ({ itemId, count,shop_id }) => ({
           url: `/stocks/sendReturn/${itemId}`,
           method: "PUT",
-          body: { count: count },
+          body: { count: count,shop_id:shop_id },
         }),
       }
-    ),
-    sendStock: build.mutation<any, { itemId: string | undefined; count: any }>({
-      query: ({ itemId, count }) => ({
-        url: `/stocks/sendStock/${itemId}`,
+    ),    
+    returnSendStock: build.mutation<any, { itemId: string | undefined; count: any;shop_id:any }>({
+      query: ({ itemId, count,shop_id }) => ({
+        url: `/stocks/returnSendStock/${itemId}`,
         method: "PUT",
-        body: { count: count },
+        body: { count: count,shop_id:shop_id },
       }),
     }),
-    sendCancelReturn: build.mutation<any, { itemId: string | undefined; count: any }>(
+    sendStock: build.mutation<any, { itemId: string | undefined; count: any;shop_id:any }>({
+      query: ({ itemId, count,shop_id }) => ({
+        url: `/stocks/sendStock/${itemId}`,
+        method: "PUT",
+        body: { count: count,shop_id:shop_id },
+      }),
+    }),
+    sendCancelReturn: build.mutation<any, { itemId: string | undefined; count: any;shop_id:any }>(
         {
-          query: ({ itemId, count }) => ({
+          query: ({ itemId, count,shop_id }) => ({
             url: `/stocks/cancelReturn/${itemId}`,
             method: "PUT",
-            body: { count: count },
+            body: { count: count,shop_id:shop_id },
           }),
         }
       ),    
-    sendCancel: build.mutation<any, { itemId: string | undefined; count: any }>(
+    sendCancel: build.mutation<any, { itemId: string | undefined; count: any;shop_id:any }>(
       {
-        query: ({ itemId, count }) => ({
+        query: ({ itemId, count,shop_id }) => ({
           url: `/stocks/cancel/${itemId}`,
           method: "PUT",
-          body: { count: count },
+          body: { count: count,shop_id:shop_id },
         }),
       }
     ),
@@ -87,7 +93,8 @@ export const {
   useGetStocksReturnQuery,
   useGetStockReturnByIdQuery,
   useGetStocksCancelQuery,
-  useSendCancelReturnMutation
+  useSendCancelReturnMutation,
+  useReturnSendStockMutation
 } = stocksApi;
 
 export default stocksApi;

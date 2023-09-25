@@ -9,30 +9,19 @@ import {
   Button,
   Link,
   Paper,
+  Box,
 } from '@mui/material'
 import { GlobalTheme } from '../..'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-// import {
-//   DesktopDatePicker,
-//   DateInputProps,
-// } from '@mui/x-date-pickers/DatePicker'
-import { useGetActionsQuery } from '../../Store/services/actions'
+import { useGetActionsQuery, useDeleteActionsMutation, useEditActionsMutation } from '../../Store/services/actions'
 import { useNavigate } from 'react-router'
+import { log } from 'console'
 
-// Кастомный компонент DatePicker с собственным вводом
-// const CustomDatePicker: React.FC<DateInputProps> = ({ value, onChange }) => {
-//   return (
-//     <DesktopDatePicker
-//       value={value}
-//       onChange={onChange}
-//       renderInput={(props) => <TextField {...props} />}
-//     />
-//   )
-// }
 
 const Actions = () => {
   const { data: transactions, refetch } = useGetActionsQuery()
+  
   useEffect(() => {
     refetch()
   }, [refetch])
@@ -70,6 +59,18 @@ const Actions = () => {
   const hadleInvoice = () => {
     navigate('/addActions')
   }
+
+  const [deleteActions, { isSuccess }] = useDeleteActionsMutation()
+
+  const handleDeleteAction = async(action: number) => {
+    await deleteActions(action)
+    refetch()
+  }
+
+  const handleCorrectItem = async(action: number) => {
+    navigate(`/editActions/${action}`)
+  }
+
   return (
     <Container>
       <ThemeProvider theme={GlobalTheme}>
@@ -88,12 +89,9 @@ const Actions = () => {
             </Button>
           </Grid>
           <Grid item xs={12} md={6}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              {/* <CustomDatePicker
-                value={selectedDate}
-                onChange={handleDateChange}
-              /> */}
-            </LocalizationProvider>
+            <LocalizationProvider
+              dateAdapter={AdapterDayjs}
+            ></LocalizationProvider>
           </Grid>
           <Grid item xs={12} sm={6} md={12}>
             <TextField
@@ -111,7 +109,6 @@ const Actions = () => {
               fullWidth
             />
           </Grid>
-
           <Container>
             <Grid container spacing={2} sx={{ mt: 2 }}>
               {filteredTransactions.map((transaction: any) => (
@@ -122,31 +119,74 @@ const Actions = () => {
                   md={4}
                   key={transaction.invoice_number}
                 >
-                  <Card
-                    sx={{
-                      background:
-                        'linear-gradient(10deg,	#FFF8DC 10%,#F5DEB3 90%)',
-                    }}
-                  >
-                    <Typography variant="subtitle1">
-                      Товар: {transaction.item_name}
-                    </Typography>
-                    <Typography variant="subtitle1">
-                      Дата: {transaction.date}
-                    </Typography>
-                    <Typography variant="subtitle1">
-                      Сумма: {transaction.total_price}
-                    </Typography>
-                    <Typography variant="subtitle1">
-                      Количество: {transaction.qty}
-                    </Typography>
-                    <Typography variant="body2">
-                      Источник: {transaction.source_name}
-                    </Typography>
-                    <Typography variant="body2">
-                      Сотрудник: {transaction.login}
-                    </Typography>
-                  </Card>
+                  <Paper sx={{ m: 2 }}>
+                    <Box display="flex">
+                      <Box>
+                        <Box width="110px" height="75px" sx={{ mr: 4 }}>
+                          {" "}
+                          {/* Задайте желаемую ширину и высоту */}
+                          <img
+                            src={transaction.image}
+                            alt={transaction.item_name}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                          <Box sx={{ ml: 1 }}>
+                            <Button
+                              size="small"
+                              onClick={() =>
+                                handleDeleteAction(transaction.invoice_number)
+                              }
+                              disabled={transaction.count > 0 ? true : false}
+                              variant="contained"
+                              color="error"
+                              sx={{ width: 90 }}
+                            >
+                              Удалить
+                            </Button>
+                            <Button
+                              size="small"
+                              onClick={() =>
+                                handleCorrectItem(transaction.invoice_number)
+                              }
+                              disabled={transaction.count > 0 ? true : false}
+                              variant="contained"
+                              color="success"
+                              sx={{ width: 90 }}
+                            >
+                              Коррект
+                            </Button>
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Typography sx={{ ml: 1 }}>
+                          Товар: {transaction.item_name}
+                        </Typography>
+                        <Typography sx={{ ml: 1 }}>
+                          Дата: {transaction.date}
+                        </Typography>
+                        <Typography sx={{ ml: 1 }}>
+                          Сумма: {transaction.total_price}
+                        </Typography>
+                        <Typography sx={{ ml: 1 }}>
+                          Количество: {transaction.qty}
+                        </Typography>
+                        <Typography sx={{ ml: 1 }}>
+                          Источник: {transaction.source_name}
+                        </Typography>
+                        <Typography sx={{ ml: 1 }}>
+                          Сотрудник: {transaction.login}
+                        </Typography>
+                        <Typography sx={{ ml: 1 }}>
+                          Магазин: {transaction.shop_name}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Paper>
                 </Grid>
               ))}
             </Grid>
@@ -154,7 +194,7 @@ const Actions = () => {
         </Grid>
       </ThemeProvider>
     </Container>
-  )
+  );
 }
 
 export default Actions
