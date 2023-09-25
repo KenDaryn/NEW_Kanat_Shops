@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useParams } from "react-router";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate } from 'react-router'
 import { useAppSelector } from '../../Store/hooks'
 import { getUser } from '../../Store/user/userSelectors'
@@ -35,17 +35,12 @@ export interface ActionProps {
 const EditActions = () => {
   const user = useAppSelector(getUser)
   const params = useParams();
-  const { data: actionsInfo } = useGetActionsByInvoiceNumberQuery(
+  const { data: actionsInfo, refetch } = useGetActionsByInvoiceNumberQuery(
     params.id as string
   );
-
-   const [action, setAction] = useState<ActionProps>({
-    item_id: 0,
-    source_name:'',
-    price: '',
-    id_shop: 0,
-    count: '',
-  });
+  useEffect(() => {
+    refetch()
+  }, [refetch])
   
   const { data: items } = useGetAllItemsQuery();
   const { data: shops } = useGetShopsQuery();
