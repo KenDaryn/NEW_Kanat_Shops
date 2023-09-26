@@ -20,84 +20,135 @@ const nanoid_1 = require("nanoid");
 const controller = express_1.default.Router();
 controller.post("/", (0, validateRequest_1.default)(users_model_1.default), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, password, email, phone, first_name, last_name, address, } = req.body;
-        const user = yield db_1.default.query("SELECT * FROM users WHERE username = $1", [
-            username
+        const { username, password, id_shops, id_role } = req.body;
+        const user = yield db_1.default.query("SELECT * FROM users WHERE login = $1", [
+            username,
         ]);
-        const mail = yield db_1.default.query("SELECT * FROM users WHERE email = $1", [
-            email
-        ]);
-        if (user.rows.length > 0 && mail.rows.length > 0) {
+        if (user.rows.length > 0) {
             return res.status(400).send({
-                errors: {
-                    username: "User already exist!",
-                    email: "E-mail already taken"
-                }
+                message: "User already exist!",
             });
         }
-        if (user.rows.length > 0) {
-            return res.status(400).send({ errors: "User allready exist!" });
-        }
-        if (mail.rows.length > 0) {
-            return res.status(400).send({ errors: "E-mail allready taken" });
-        }
-        const date = new Date().toISOString();
+        const date = new Date().toLocaleString();
         const newUser = yield db_1.default.query(`INSERT INTO users
-            (username, password, email, email_verificated, phone, first_name, last_name, address, create_date)
-            VALUES ($1, crypt($2, gen_salt('bf')), $3, $4, $5, $6, $7, $8, $9)
-            RETURNING username, email, phone, first_name, last_name, address, create_date`, [
-            username,
-            password,
-            email,
-            false,
-            phone,
-            first_name,
-            last_name,
-            address,
-            date
-        ]);
+            (login, password, id_role, create_date, id_shops, blocked)
+            VALUES ($1, $2, $3, $4, $5, $6)`, [username, password, id_role, date, id_shops, false]);
         res.status(200).send(newUser.rows[0]);
     }
     catch (error) {
-        res.status(500).send({ error: error.message });
+        res.status(500).send({ message: error.message });
     }
 }));
 controller.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
-        const user = yield db_1.default.query("SELECT * FROM users WHERE username = $1", [
-            username
+        const user = yield db_1.default.query("SELECT * FROM users WHERE login = $1", [
+            username,
         ]);
         if (user.rows.length === 0) {
-            return res.status(401).send({ error: "Username not found!" });
+            return res.status(401).send({ message: "Username not found!" });
         }
-        const passwordMatches = yield db_1.default.query("SELECT crypt($1, $2) = $2 AS password_matches", [password, user.rows[0].password]);
-        if (!passwordMatches.rows[0].password_matches) {
-            return res.status(400).send({ errors: "Wrong password" });
+        const passwordUser = yield db_1.default.query("SELECT password from users where login = $1", [username]);
+        if (passwordUser.rows[0].password !== password) {
+            return res.status(400).send({ message: "Wrong password" });
+            // return res.status(400).send({ message: passwordUser.rows[0] });
         }
         const token = (0, nanoid_1.nanoid)();
         const userSetToken = yield db_1.default.query(`UPDATE users SET 
                     token = $1
-                    WHERE username = $2
+                    WHERE login = $2
                     RETURNING *`, [token, username]);
         const authorizedUser = yield db_1.default.query(`select
             u.id,
-            u.username,
+            u.login,
             u.token,
             r.role,
-            u.email,
-            u.email_verificated,
-            u.phone,
-            u.avatar,
-            u.first_name,
-            u.last_name,
-            u.address,
-            u.create_date,
-            u.last_update_date
+            id_shops,
+            u.blocked
             from users u
             left join user_roles r on r.id = u.id_role
-            where u.username = $1`, [username]);
+            where u.login = $1`, [username]);
         res.status(200).send(authorizedUser.rows[0]);
+    }
+    catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+}));
+controller.post("/change", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, password, id_shops, id_role } = req.body;
+        const user = yield db_1.default.query("SELECT * FROM users WHERE login = $1", [
+            username,
+        ]);
+        if (user.rows.length === 0) {
+            return res.status(401).send({ message: "Username not found!" });
+        }
+        const date = new Date().toLocaleString();
+        if (id_shops && !id_role && !password) {
+            yield db_1.default.query(`
+        update users
+        set 
+        id_shops = $1,
+        last_update_date = $2
+        where login = $3
+        `, [id_shops, date, username]);
+        }
+        if (!id_shops && id_role && !password) {
+            yield db_1.default.query(`
+        update users
+        set 
+        id_role = $1,
+        last_update_date = $2
+        where login = $3
+        `, [id_role, date, username]);
+        }
+        if (!id_shops && !id_role && password) {
+            yield db_1.default.query(`
+        update users
+        set password = $1,
+        last_update_date = $2
+        where login = $3
+        `, [password, date, username]);
+        }
+        if (id_shops && id_role && password) {
+            yield db_1.default.query(`
+        update users
+        set password = $1,
+        id_shops = $2,
+        id_role = $3,
+        last_update_date = $4
+        where login = $5
+        `, [password, id_shops, id_role, date, username]);
+        }
+        if (!id_shops && id_role && password) {
+            yield db_1.default.query(`
+        update users
+        set password = $1,
+        id_role = $2,
+        last_update_date = $3
+        where login = $4
+        `, [password, id_role, date, username]);
+        }
+        if (id_shops && !id_role && password) {
+            yield db_1.default.query(`
+        update users
+        set password = $1,
+        id_shops = $2,
+        last_update_date = $3
+        where login = $4
+        `, [password, id_shops, date, username]);
+        }
+        if (id_shops && id_role && !password) {
+            yield db_1.default.query(`
+        update users
+        set
+        id_shops = $1,
+        id_role = $2,
+        last_update_date = $3
+        where login = $4
+        `, [id_shops, id_role, date, username]);
+        }
+        res.status(200).send({ message: "update successfull" });
     }
     catch (error) {
         res.status(500).send({ error: error.message });
@@ -110,7 +161,7 @@ controller.delete("/logout", (req, res) => __awaiter(void 0, void 0, void 0, fun
             return res.status(401).send({ error: "Unauthorized" });
         }
         const user = yield db_1.default.query(`SELECT * from users WHERE token = $1`, [
-            token
+            token,
         ]);
         if (user.rowCount === 0) {
             return res.status(200).send({ message: "Logout successfull!" });
@@ -124,6 +175,28 @@ controller.delete("/logout", (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
     catch (error) {
         res.status(500).send({ error: error.message });
+    }
+}));
+controller.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userInfo = yield db_1.default.query(`select
+      u.id,
+      u.login,
+      u.id_role,
+      ur.role as "role_name",
+      u.id_shops,
+      s.name as "shop_name",
+      u.create_date,
+      u.last_update_date
+      from users u
+      inner join user_roles ur on ur.id = u.id_role
+      left join shops s on s.id = u.id_shops
+      where u.id_role !=1
+      order by u.create_date desc`);
+        res.status(200).send(userInfo.rows);
+    }
+    catch (error) {
+        res.status(500).send({ message: error.message });
     }
 }));
 exports.default = controller;

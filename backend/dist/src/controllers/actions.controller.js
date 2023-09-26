@@ -14,300 +14,320 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const db_1 = __importDefault(require("../db/db"));
-const actions_models_1 = __importDefault(require("../models/actions.models"));
-const validateRequest_1 = __importDefault(require("../middlewares/validateRequest"));
+const nanoid_1 = require("nanoid");
 const controller = express_1.default.Router();
-controller.get("/pagination", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+controller.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const start = req.query.start;
-        const end = req.query.end;
-        const actions = yield db_1.default.query(`select
-      (select count(id) from actions) as total_count,
-      a.id,
-      ot.name,
-      CASE
-      WHEN ssi.supplier_id is not null THEN (select name_supplier from suppliers where id = ssi.supplier_id)
-      WHEN ssi.storage_id is not null THEN (select storage from storages where id = ssi.storage_id)
-      END source,
-      CASE
-      WHEN sst.supplier_id is not null THEN (select name_supplier from suppliers where id = sst.supplier_id)
-      WHEN sst.storage_id is not null THEN (select storage from storages where id = sst.storage_id)
-      END target,
-      i.item_name,
-      a.qty,
-      a.price,
-      a.total_price,
-      a.date,
-      a.update_date
-      from actions a
-      inner join operation_type ot on ot.id = a.operation_type_id
-      inner join suppliers_storages ssi on ssi.id = a.source_id
-      inner join suppliers_storages sst on sst.id = a.target_id
-      inner join items i on i.id = a.item_id
-      where a.id between $1 and $2
-      order by a.id
-        `, [start, end]);
-        res.status(200).send(actions.rows);
-    }
-    catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-}));
-controller.get("/period", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const start_date = req.query.start_date;
-        const end_date = req.query.end_date;
-        const actions = yield db_1.default.query(`select
-      a.id,
-      ot.name,
-      CASE
-      WHEN ssi.supplier_id is not null THEN (select name_supplier from suppliers where id = ssi.supplier_id)
-      WHEN ssi.storage_id is not null THEN (select storage from storages where id = ssi.storage_id)
-      END source,
-      CASE
-      WHEN sst.supplier_id is not null THEN (select name_supplier from suppliers where id = sst.supplier_id)
-      WHEN sst.storage_id is not null THEN (select storage from storages where id = sst.storage_id)
-      END target,
-      i.item_name,
-      a.qty,
-      a.price,
-      a.total_price,
-      a.date,
-      a.update_date
-      from actions a
-      inner join operation_type ot on ot.id = a.operation_type_id
-      inner join suppliers_storages ssi on ssi.id = a.source_id
-      inner join suppliers_storages sst on sst.id = a.target_id
-      inner join items i on i.id = a.item_id
-      where to_char(a.date, 'DD.MM.YYYY') between $1 and $2
-      order by a.date`, [start_date, end_date]);
-        res.status(200).send(actions.rows);
-    }
-    catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-}));
-controller.get("/supplier", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const supplier_id = req.query.supplier_id;
-        const actions = yield db_1.default.query(`select
-      a.id,
-      ot.name,
-      CASE
-      WHEN ssi.supplier_id is not null THEN (select name_supplier from suppliers where id = ssi.supplier_id)
-      WHEN ssi.storage_id is not null THEN (select storage from storages where id = ssi.storage_id)
-      END source,
-      CASE
-      WHEN sst.supplier_id is not null THEN (select name_supplier from suppliers where id = sst.supplier_id)
-      WHEN sst.storage_id is not null THEN (select storage from storages where id = sst.storage_id)
-      END target,
-      i.item_name,
-      a.qty,
-      a.price,
-      a.total_price,
-      a.date,
-      a.update_date
-      from actions a
-      inner join operation_type ot on ot.id = a.operation_type_id
-      inner join suppliers_storages ssi on ssi.id = a.source_id
-      inner join suppliers_storages sst on sst.id = a.target_id
-      inner join items i on i.id = a.item_id
-      where a.source_id = (
-	  select id from suppliers_storages where supplier_id = $1)
-      order by a.id
-        `, [supplier_id]);
-        res.status(200).send(actions.rows);
-    }
-    catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-}));
-controller.post('/', (0, validateRequest_1.default)(actions_models_1.default), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const token = req.get('Authorization');
-        const { operation_type_id, source_id, target_id, invoice_number, items } = req.body;
-        const user = yield db_1.default.query('SELECT id FROM users WHERE token = $1', [
-            token
+        const token = req.get("Authorization");
+        const { count, summ, from, id_shop, id_item } = req.body;
+        const user = yield db_1.default.query("SELECT id_role FROM users WHERE token = $1", [
+            token,
         ]);
         if (!user.rows.length) {
-            return res.status(400).send({ message: 'User not found' });
-        }
-        const operation = yield db_1.default.query('SELECT * FROM operation_type WHERE id = $1', [operation_type_id]);
-        if (!operation.rows.length) {
-            return res.status(400).send({ error: 'Operation not found' });
-        }
-        const source = yield db_1.default.query('SELECT * FROM suppliers WHERE id = $1', [source_id]);
-        if (!source.rows.length) {
-            return res.status(400).send({ error: 'Source not found' });
-        }
-        const target = yield db_1.default.query('SELECT * FROM storages WHERE id = $1', [target_id]);
-        if (!target.rows.length) {
-            return res.status(400).send({ error: 'Target not found' });
-        }
-        const create_date = new Date().toISOString();
-        const actions = [];
-        for (const item of items) {
-            const { item_id, qty, price } = item;
-            if (qty <= 0) {
-                return res.status(400).send({ error: 'Qty less than or equal to 0' });
-            }
-            if (price <= 0) {
-                return res.status(400).send({ error: 'Price less than or equal to 0' });
-            }
-            const total = qty * price;
-            const newAction = db_1.default.query(`INSERT INTO actions 
-          (operation_type_id, source_id, target_id, item_id, qty, price, date, total_price, user_id, invoice_number)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8,  (select id from users where token = $9), $10) RETURNING *`, [
-                operation_type_id,
-                source_id,
-                target_id,
-                item_id,
-                qty,
-                price,
-                create_date,
-                total,
-                token,
-                invoice_number
-            ]);
-            actions.push(newAction);
-        }
-        const insertedActions = yield Promise.all(actions);
-        res.status(200).send(insertedActions.map((result) => result.rows[0]));
-    }
-    catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-}));
-controller.put("/:id", (0, validateRequest_1.default)(actions_models_1.default), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const id = req.params.id;
-        const token = req.get("Authorization");
-        const { operation_type_id, source_id, target_id, item_id, qty, price } = req.body;
-        const user_id = yield db_1.default.query("SELECT id FROM users WHERE token = $1", [
-            token
-        ]);
-        if (!user_id.rows.length) {
             return res.status(400).send({ message: "User not found" });
         }
-        const id_actions = yield db_1.default.query("SELECT * FROM actions WHERE id = $1", [
-            id
+        const invoiceNumber = (0, nanoid_1.nanoid)();
+        const date = new Date().toLocaleString();
+        if (user.rows[0].id_role === 1) {
+            let i = 0;
+            while (i < parseInt(count)) {
+                yield db_1.default.query(`
+            INSERT INTO actions 
+            (operation_type_id, 
+              source_name, 
+              item_id, 
+              qty, 
+              price, 
+              total_price, 
+              date,
+              invoice_user_id,
+              invoice_number,
+              id_shop)
+              VALUES 
+              ($1, 
+              $2,
+              $3,
+              $4, 
+              $5, 
+              $6, 
+              $7,
+              (SELECT id FROM users WHERE token = $8),
+              $9,
+              $10
+              )`, [1, from, id_item, 1, summ, summ, date, token, invoiceNumber, id_shop]);
+                i++;
+            }
+            res.status(200).send({ message: "successfully" });
+        }
+        else {
+            let i = 0;
+            while (i < parseInt(count)) {
+                yield db_1.default.query(`
+              INSERT INTO actions 
+              (operation_type_id, 
+                source_name, 
+                item_id, 
+                qty, 
+                price, 
+                total_price, 
+                date,
+                invoice_user_id,
+                invoice_number,
+                id_shop)
+                VALUES 
+                ($1, 
+                $2,
+                $3,
+                $4, 
+                $5, 
+                $6, 
+                $7,
+                (SELECT id FROM users WHERE token = $8),
+                $9,
+                (SELECT id_shops FROM users WHERE token = $10)
+                )`, [1, from, id_item, 1, summ, summ, date, token, invoiceNumber, token]);
+                i++;
+            }
+            res.status(200).send({ message: "successfully" });
+        }
+    }
+    catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+}));
+controller.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const token = req.get("Authorization");
+        if (!token)
+            res.status(400).send({ message: "Token must be present" });
+        const user = yield db_1.default.query("SELECT id_role FROM users WHERE token = $1", [
+            token,
         ]);
-        if (!id_actions.rows.length) {
-            return res.status(400).send({ error: "Actions not found" });
+        if (user.rows[0].id_role === 1) {
+            const invoiceNumbers = yield db_1.default.query(`
+        select
+        (select count (id) from history where invoice_number = a.invoice_number),
+        a.source_name,
+        i.name as "item_name",
+        sum(a.qty) as "qty",
+        a.price,
+        sum(a.total_price) as "total_price",
+        a.invoice_number,
+        a.date,
+        s.name as "shop_name",
+        i.image,
+        u.login
+        from actions a
+        inner join items i on i.id = a.item_id
+        inner join shops s on s.id = a.id_shop
+        inner join users u on u.id = a.invoice_user_id
+        group by 
+        a.invoice_number,
+        a.source_name,
+        i.name,
+        a.qty,
+        a.price,
+        a.total_price,
+        a.date,
+        s.name,
+        i.image,
+        u.login
+        order by a.date desc
+        `);
+            res.status(200).send(invoiceNumbers.rows);
         }
-        const operation = yield db_1.default.query("SELECT * FROM operation_type WHERE id = $1", [operation_type_id]);
-        if (!operation.rows.length) {
-            return res.status(400).send({ error: "Operation not found" });
-        }
-        if (qty && price) {
-            if (qty <= 0) {
-                return res.status(400).send({ error: "Qty less than or equal to 0" });
-            }
-            if (price <= 0) {
-                return res
-                    .status(400)
-                    .send({ error: "Price less than or equal to 0" });
-            }
-            if (qty > 0 && price > 0) {
-                const total = qty * price;
-                const update_date = new Date().toISOString();
-                const newActions = yield db_1.default.query(`UPDATE actions SET
-            operation_type_id=$1, 
-            source_id = $2, 
-            target_id = $3, 
-            item_id = $4, 
-            qty = $5, 
-            price = $6,
-            total_price= $7,
-            user_id = (SELECT id FROM users WHERE token = $8),
-            update_date = $9
-            WHERE id = $10
-            RETURNING *`, [
-                    operation_type_id,
-                    source_id,
-                    target_id,
-                    item_id,
-                    qty,
-                    price,
-                    total,
-                    token,
-                    update_date,
-                    id
-                ]);
-                res.status(200).send(newActions.rows);
-            }
+        else {
+            const invoiceNumbers = yield db_1.default.query(`
+        select
+        (select count (id) from history where invoice_number = a.invoice_number),
+        a.source_name,
+        i.name as "item_name",
+        sum(a.qty) as "qty",
+        a.price,
+        sum(a.total_price) as "total_price",
+        a.invoice_number,
+        a.date,
+        s.name as "shop_name",
+        i.image,
+        u.login
+        from actions a
+        inner join items i on i.id = a.item_id
+        inner join shops s on s.id = a.id_shop
+        inner join users u on u.id = a.invoice_user_id
+        where a.id_shop in (SELECT id_shops FROM users WHERE token = $1)
+        group by 
+        a.invoice_number,
+        a.source_name,
+        i.name,
+        a.qty,
+        a.price,
+        a.total_price,
+        a.date,
+        s.name,
+        i.image,
+        u.login
+        order by a.date desc
+        `, [token]);
+            res.status(200).send(invoiceNumbers.rows);
         }
     }
     catch (error) {
         res.status(500).send({ error: error.message });
     }
 }));
-controller.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+controller.get("/:invoice_number", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const id = req.params.id;
-        const item = yield db_1.default.query("SELECT * FROM actions WHERE id = $1", [id]);
-        if (!item.rows.length) {
-            return res.status(400).send({ error: "Actions not found" });
-        }
-        yield db_1.default.query("DELETE FROM actions WHERE id= $1", [id]);
-        res.status(200).send({ message: "Actions deleted successfully" });
-    }
-    catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-}));
-controller.get('/invoices', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const invoiceNumbers = yield db_1.default.query(`select
-      a.invoice_number as id,
-      COUNT(*) AS total_items,
-      sss.name_supplier AS supplier_name,
-      s.storage AS storage_name,
-      SUM(a.total_price) AS total_sum,
-      MAX(a.date) AS date,
-	    u.username
-      from actions a
-      left join storages ss ON a.target_id = ss.id
-      left join suppliers sss ON a.source_id = sss.id
-      left JOIN storages s ON a.target_id= s.id
-	    left join users u on u.id = a.user_id
-	    where a.operation_type_id = 1
-	    group by a.invoice_number, sss.name_supplier, s.storage, u.username, a.date
-      order by a.date desc`);
+        const invoice_number = req.params.invoice_number;
+        const token = req.get("Authorization");
+        if (!token)
+            res.status(400).send({ message: "Token must be present" });
+        const invoiceNumbers = yield db_1.default.query(`
+        select
+        a.source_name,
+		    a.item_id,
+        i.name as "item_name",
+        sum(a.qty) as "qty",
+        a.price,
+        sum(a.total_price) as "total_price",
+        a.date,
+        s.name as "shop_name",
+		    a.id_shop,
+        i.image,
+        u.login
+        from actions a
+        inner join items i on i.id = a.item_id
+        inner join shops s on s.id = a.id_shop
+        inner join users u on u.id = a.invoice_user_id
+		    where a.invoice_number = $1
+        group by
+		    a.item_id,
+        a.invoice_number,
+        a.source_name,
+        i.name,
+        a.qty,
+        a.price,
+        a.total_price,
+        a.date,
+        s.name,
+		    a.id_shop,
+        i.image,
+        u.login
+        order by a.date desc
+        `, [invoice_number]);
         res.status(200).send(invoiceNumbers.rows);
     }
     catch (error) {
         res.status(500).send({ error: error.message });
     }
 }));
-controller.get('/invoices/:invoice_number', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+controller.delete("/:invoice_number", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const invoiceNumber = req.params.invoice_number;
-        const query = `
-    select
-  i.item_name,
-  s1.name_supplier AS source_supplier_name,
-  s2.storage AS target_storage_name,
-  a.qty,
-  a.price,
-  a.total_price,
-  a.date,
-  u.first_name,
-  u.last_name
-from
-  actions a
-  join items i ON a.item_id = i.id
-  left join suppliers s1 on a.source_id = s1.id
-  left join storages s2 on a.target_id = s2.id
-  left join users u on a.user_id = u.id
-where
-  a.invoice_number = $1;
-    `;
-        const result = yield db_1.default.query(query, [invoiceNumber]);
-        res.status(200).json(result.rows);
+        const id = req.params.invoice_number;
+        const token = req.get("Authorization");
+        if (!token)
+            res.status(400).send({ message: "Token must be present" });
+        yield db_1.default.query("DELETE FROM actions WHERE invoice_number = $1", [id]);
+        res.status(200).send({
+            message: "Shops deleted successfully",
+        });
     }
     catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).send({ error: error.message });
+    }
+}));
+controller.put("/:invoice_number", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const invoice_number = req.params.invoice_number;
+        const { item_id, source_name, qty, price, id_shop, count } = req.body;
+        const token = req.get("Authorization");
+        if (!token)
+            res.status(400).send({ message: "Token must be present" });
+        const user_id = yield db_1.default.query("SELECT id FROM users WHERE token = $1", [
+            token,
+        ]);
+        if (!user_id.rows.length) {
+            return res.status(400).send({ message: "User not found" });
+        }
+        const date = new Date().toLocaleString();
+        if (parseInt(qty) > parseInt(count)) {
+            const total = parseInt(qty) - parseInt(count);
+            yield db_1.default.query(`UPDATE 
+      actions 
+      set 
+      source_name = $1, 
+      item_id = $2, 
+      price = $3, 
+      total_price = $3, 
+      update_date = $4, 
+      id_shop = $5,
+      user_id = (SELECT id FROM users WHERE token = $6),
+      date = $7
+      where invoice_number = $8`, [source_name, item_id, price, date, id_shop, token, date, invoice_number]);
+            let i = 0;
+            while (i < total) {
+                yield db_1.default.query(`
+            INSERT INTO actions 
+            (operation_type_id, 
+              source_name, 
+              item_id, 
+              qty, 
+              price, 
+              total_price, 
+              date,
+              invoice_user_id,
+              invoice_number,
+              id_shop)
+              VALUES 
+              ($1, 
+              $2,
+              $3,
+              $4, 
+              $5, 
+              $6, 
+              $7,
+              (SELECT id FROM users WHERE token = $8),
+              $9,
+              $10
+              )`, [1, source_name, item_id, 1, price, price, date, token, invoice_number, id_shop]);
+                i++;
+            }
+        }
+        if (qty === count) {
+            yield db_1.default.query(`UPDATE 
+      actions 
+      set 
+      source_name = $1, 
+      item_id = $2, 
+      price = $3, 
+      total_price = $3, 
+      update_date = $4, 
+      id_shop = $5,
+      user_id = (SELECT id FROM users WHERE token = $6),
+      date = $7
+      where invoice_number = $8`, [source_name, item_id, price, date, id_shop, token, date, invoice_number]);
+        }
+        if (parseInt(count) > parseInt(qty)) {
+            const total = parseInt(count) - parseInt(qty);
+            yield db_1.default.query(`DELETE FROM actions WHERE id IN (
+        SELECT id FROM actions WHERE invoice_number = $1 LIMIT $2
+    )`, [invoice_number, total]);
+            yield db_1.default.query(`UPDATE 
+      actions 
+      set 
+      source_name = $1, 
+      item_id = $2, 
+      price = $3, 
+      total_price = $3, 
+      update_date = $4, 
+      id_shop = $5,
+      user_id = (SELECT id FROM users WHERE token = $6),
+      date = $7
+      where invoice_number = $8`, [source_name, item_id, price, date, id_shop, token, date, invoice_number]);
+        }
+        res.status(200).send({ message: "update was successful" });
+    }
+    catch (error) {
+        res.status(500).send({ error: error.message });
     }
 }));
 exports.default = controller;
