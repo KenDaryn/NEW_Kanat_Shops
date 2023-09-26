@@ -1,0 +1,14 @@
+version: '3'
+services:
+  node-app:
+    image: node:14 # Используем образ Node.js
+    ports:
+      - "3000:3000" # Открываем порт 3000 на хосте и контейнере
+    environment:
+      NODE_ENV: production # Устанавливаем переменную окружения NODE_ENV
+      postgres:
+    image: postgres:13 # Используем образ PostgreSQL
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: kanat_shop
